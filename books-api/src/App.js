@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react'
 import './App.css'
 import BookSearch from './BookSearch'
@@ -9,20 +8,27 @@ class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      searchTerm: ['None'],
       filter: [],
       printType: [],
       apiKey: 'AIzaSyCVbQRgRf0EVWUyfVMaWhJqIwfzsSBVtsc',
       books: [],
     }
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.getSearch = this.getSearch.bind(this);
+
   }
 
   handleSubmit(event) {
+
     event.preventDefault();
-    this.setState({
-      searchTerm: event.target.value
-    })
-  }
+    console.log(event);
+    console.log(`handleSubmit ${event.currentTarget[0].value}`);
+/*     this.setState({
+      searchTerm: event.currentTarget[0].value
+  }) */
+    const searchTerm = event.currentTarget[0].value;
+    this.getSearch(searchTerm);
+}
 
   setFilter(filter) {
     this.setState({
@@ -36,28 +42,30 @@ class App extends Component {
     })
   }
 
+  getSearch(searchTerm) {
+    fetch(`https://www.googleapis.com/books/v1/volumes?q=${searchTerm}${this.state.filter}${this.state.printType}&key=${this.state.apiKey}`)
+    .then(response => response.json())
+    .then(responseJson => {
+      console.log(responseJson);
+       this.setState({
+        books: responseJson.items,
+      }
+      );
+    }
+  );
+  }
+
   componentDidMount() {
     console.log(this.state.searchTerm);
     console.log(this.state.filter);
     console.log(this.state.printType);
-    
-      fetch(`https://www.googleapis.com/books/v1/volumes?q=${this.state.searchTerm}${this.state.filter}${this.state.printType}&key=${this.state.apiKey}`)
-        .then(response => response.json())
-        .then(responseJson => {
-          console.log(responseJson);
-           this.setState({
-            books: responseJson.items,
-          }
-          );
-        }
-      );
   }
 
   render() {
     return (
       <div className="App">
         <header className="header">Google Book Search</header>
-        <BookSearch />
+        <BookSearch handleSubmit={this.handleSubmit}/>
         <TypeSelector />
         {this.state.books.map(book => {
           return (
