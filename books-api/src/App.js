@@ -9,10 +9,10 @@ class App extends Component {
     super(props)
     this.state = {
       searchTerm: ['None'],
-      filter: [''],
-      printType: [''],
+      filter: [],
+      printType: [],
       apiKey: 'AIzaSyCVbQRgRf0EVWUyfVMaWhJqIwfzsSBVtsc',
-      books: [''],
+      books: [],
     }
   }
 
@@ -42,13 +42,12 @@ class App extends Component {
     
       fetch(`https://www.googleapis.com/books/v1/volumes?q=${this.state.searchTerm}${this.state.filter}${this.state.printType}&key=${this.state.apiKey}`)
         .then(response => response.json())
-        .then(items => {
-          console.log(items);
-/*           this.setState({
-            title: items.volumeInfo.title,
-            description: items.volumeInfo.description,
+        .then(responseJson => {
+          console.log(responseJson);
+          this.setState({
+            books: responseJson.items
           }
-          ); */
+          );
         }
       );
   }
@@ -59,11 +58,15 @@ class App extends Component {
         <header className="header">Google Book Search</header>
         <BookSearch />
         <TypeSelector />
-        {this.state.books && (
-          <div className="booklist">
-            {this.state.books}
-          </div>
-        )}
+        {this.state.books.map(book => {
+            return (
+                <div>
+                    <h3>{book.volumeInfo.title}</h3>
+                    <p>{book.saleInfo.retailPrice.amount}</p>
+                    <p>{book.volumeInfo.description}</p>
+                </div>
+            );
+        })}
       </div>
     );
   }
